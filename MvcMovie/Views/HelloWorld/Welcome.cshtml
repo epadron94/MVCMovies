@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<h2>Welcome</h2>
+
+<ul>
+    @try
+    {
+        int numTimes = Int16.TryParse(ViewData["NumTimes"]?.ToString(), out var result) ? result : 0;
+        if (numTimes == 0) { throw new Exception(); }
+        @for(int i = 0; i < (int)ViewData["NumTimes"]!; i++)
+        {
+            <li>@ViewData["Message"]</li>
+        }
+    }
+    catch (Exception)
+    {
+        <li>Error: Unable to retrieve message.</li>
+    }
+    
+</ul>
