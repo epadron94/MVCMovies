@@ -74,7 +74,7 @@ namespace MvcMovie.Controllers
         // GET: Movies/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new Movie());
         }
 
         // POST: Movies/Create
@@ -82,7 +82,7 @@ namespace MvcMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price")] Movie movie)
+        public async Task<IActionResult> Create([Bind("id,Title,ReleaseDate,Genre,Price")] Movie movie)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace MvcMovie.Controllers
             {
                 Console.WriteLine(ex.Message);
                 ViewBag.ErrorMessage = ex.Message;
-                return View();
+                return View(movie);
             }
         }
 
@@ -172,6 +172,8 @@ namespace MvcMovie.Controllers
             return View(movie);
         }
 
+
+//RETO: create a stored procedure to delete items
         // POST: Movies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

@@ -37,8 +37,6 @@ namespace MvcMovie.Services
         {
             try
             {
-
-                item.id = Guid.NewGuid().ToString();
                 item.partition1 = _partitionKey;
                 var response = await _container.CreateItemAsync(item, new PartitionKey(item.partition1));
                 return response;

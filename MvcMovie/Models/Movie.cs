@@ -12,4 +12,9 @@ public class Movie
     public decimal? Price {get;set;}
 
     public string partition1 {get;set;}
+    public Movie()
+    {
+        id = Guid.NewGuid().ToString();
+
+    }
 }
