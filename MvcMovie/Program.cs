@@ -6,43 +6,32 @@ using MvcMovie.Services;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.DataProtection;
-/*
-reto TODO CONNECT TO CosmosDB
-// ...existing code...
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
+using MvcMovie.Static;
 
-string keyVaultUrl = "https://<your-keyvault-name>.vault.azure.net/";
-var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-
-// Read a secret
-KeyVaultSecret secret = await client.GetSecretAsync("CosmosDbKey");
-string secretValue = secret.Value;
-// ...use secretValue...
-*/
-//CONNECT TO AZ KEYVAULT
 var builder = WebApplication.CreateBuilder(args);
 
-var keyVaultConfig = builder.Configuration.GetSection("KeyVault");
-string keyVaultUri = keyVaultConfig["VaultUri"];
+var keyVaultConfig = builder.Configuration.GetSection(Static.KeyVault);
+var CosmosDbConfig = builder.Configuration.GetSection(Static.CosmosDb);
+
+string keyVaultUri = keyVaultConfig[Static.VaultUri];
 var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
 
-KeyVaultSecret cosmosDbAccountSecret = await secretClient.GetSecretAsync("CosmosDbAccount");
+KeyVaultSecret cosmosDbAccountSecret = await secretClient.GetSecretAsync(Static.CosmosDbAccount);
 string cosmosDbAccount = cosmosDbAccountSecret.Value;
 
-KeyVaultSecret cosmosDbKeySecret = await secretClient.GetSecretAsync("CosmosDbKey");
+KeyVaultSecret cosmosDbKeySecret = await secretClient.GetSecretAsync(Static.CosmosDbKey);
 string cosmosDbKey = cosmosDbKeySecret.Value;
 
 
 builder.Services.AddDbContext<MvcMovieContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("MvcMovieContext") ?? throw new InvalidOperationException("Connection string 'MvcMovieContext' not found.")));
  
-var CosmosDbConfig = builder.Configuration.GetSection("CosmosDb");
+
 builder.Services.AddSingleton(t =>
     {
         var cosmosClientOptions = new CosmosClientOptions
         {
-            ApplicationPreferredRegions = CosmosDbConfig.GetSection("PreferredRegions").Get<List<string>>()
+            ApplicationPreferredRegions = CosmosDbConfig.GetSection(Static.PreferredRegions).Get<List<string>>()
         };
         return new CosmosClient(
             accountEndpoint:cosmosDbAccount,// CosmosDbConfig["Account"],

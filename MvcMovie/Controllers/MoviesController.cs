@@ -84,27 +84,23 @@ namespace MvcMovie.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price")] Movie movie)
         {
-            /*if (ModelState.IsValid)
-            {*/
-                /*_context.Add(movie);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));*/
-                try
+            try
+            {
+                string validations = ValidateEntity(movie);
+                if(string.IsNullOrEmpty(validations))
                 {
                     var response = _cosmosDbService.CreateItemAsync(movie).Result;
-                    if(response.StatusCode.Equals(System.Net.HttpStatusCode.Created))
-                        return RedirectToAction(nameof(Index));
-                    else
-                        throw new Exception("Error creating item in CosmosDB");
-
+                    return RedirectToAction(nameof(Index));
                 }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    throw ex;
-                }
-            //}
-            //return View(movie);
+                else
+                    throw new Exception(validations);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                ViewBag.ErrorMessage = ex.Message;
+                return View();
+            }
         }
 
         // GET: Movies/Edit/5
@@ -113,71 +109,49 @@ namespace MvcMovie.Controllers
             try
             {
                 if (string.IsNullOrEmpty(id))
-                {
-                    return NotFound();
-                }
+                    throw new Exception("Id is required");//return NotFound();
 
-                //var movie = await _context.Movie.FindAsync(id);
                 var movie = _cosmosDbService.GetItemAsync<Movie>(id).Result;
-                if (movie == null)
-                {
-                    return NotFound();
-                }
+                if (movie is null)
+                    throw new Exception("Movie not found");//return NotFound();
                 return View(movie);
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return NotFound();
+                ViewBag.ErrorMessage = ex.Message;
+                return View();
+                //return NotFound();
             }
             
         }
 
-        // POST: Movies/Edit/5
+        // POST: Movies/Edit/5–––~~
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("id,Title,ReleaseDate,Genre,Price")] Movie movie)
         {
-            if (id != movie.id)
+            try
+            {    
+                /*if (id != movie.id)            
+                    return NotFound();*/
+                string validations = ValidateEntity(movie);
+                if(string.IsNullOrEmpty(validations))
+                {
+                    var response = _cosmosDbService.UpdateItemAsync(movie).Result;                    
+                    return RedirectToAction(nameof(Index));    
+                }
+                else
+                    throw new Exception(validations);                                
+            }
+            catch(Exception ex)
             {
-                return NotFound();
+                Console.WriteLine(ex.Message);
+                ViewBag.ErrorMessage = ex.Message;
+                return View();
             }
-
-            //replace ModelState.IsValidwith custom data validation method
-            /*if (ModelState.IsValid)
-            {*/
-                try
-                {
-                    var response = _cosmosDbService.UpdateItemAsync(movie).Result;
-                    //if(response.StatusCode == System.Net.HttpStatusCode)
-                    return RedirectToAction(nameof(Index));
-                    /*_context.Update(movie);
-                    await _context.SaveChangesAsync();*/
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    throw ex;
-                }
-                /*catch (DbUpdateConcurrencyException)
-                {
-                    int _id = 0;
-                    Int32.TryParse(movie.Id, out _id);
-                    
-                    if (!MovieExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                //return RedirectToAction(nameof(Index));
-            }
-            return View(movie);*/
         }
 
         // GET: Movies/Delete/5
@@ -216,6 +190,32 @@ namespace MvcMovie.Controllers
         private bool MovieExists(string id)
         {
             return _context.Movie.Any(e => e.id == id);
+        }
+
+        public string ValidateEntity(Movie movie)
+        {
+            string errorMessage = "";
+            try
+            {
+                if(string.IsNullOrEmpty(movie.Title))
+                    errorMessage = "<p>Title is required </p>";
+
+                if(movie.ReleaseDate is null || movie.ReleaseDate == DateTime.MinValue)                
+                    errorMessage += "<p>Release Date is required </p>";
+                
+                if(string.IsNullOrEmpty(movie.Genre))
+                    errorMessage += "<p>Genre is required </p>";
+                
+                if(movie.Price is null || movie.Price <= 0)
+                    errorMessage += "<p>Price must be greater than 0 </p>";
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                errorMessage += ex.Message;
+
+            }
+            return errorMessage;
         }
     }
 }
