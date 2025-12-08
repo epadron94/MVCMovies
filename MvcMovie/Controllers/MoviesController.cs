@@ -157,19 +157,19 @@ namespace MvcMovie.Controllers
         // GET: Movies/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
+                Movie movie = _cosmosDbService.GetItemAsync<Movie>(id).Result;
+                if(movie is null)
+                    throw new Exception("Movie not found");
+                return View(movie);
             }
-
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.id == id);
-            if (movie == null)
+            catch(Exception ex)
             {
-                return NotFound();
+                Console.WriteLine(ex.ToString());
+                ViewBag.ErrorMessage = ex.Message;
+                return View();
             }
-
-            return View(movie);
         }
 
 
@@ -179,19 +179,21 @@ namespace MvcMovie.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var movie = await _context.Movie.FindAsync(id);
-            if (movie != null)
+            try
             {
-                _context.Movie.Remove(movie);
+                Movie movie = _cosmosDbService.GetItemAsync<Movie>(id).Result;
+                if(movie is null)
+                    throw new Exception("Movie not found");
+                string response = await _cosmosDbService.DeleteItemAsync(id);
+
+                Console.WriteLine(response.ToString());
+
             }
-
-            await _context.SaveChangesAsync();
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool MovieExists(string id)
-        {
-            return _context.Movie.Any(e => e.id == id);
         }
 
         public string ValidateEntity(Movie movie)

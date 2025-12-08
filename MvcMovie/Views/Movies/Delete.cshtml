@@ -2,6 +2,16 @@
 
 @{
     ViewData["Title"] = "Delete";
+    string ? errorMessage = ViewBag.ErrorMessage as string;
+
+}
+<!--TODO: move the error banner to a partial? view -->
+@if(!string.IsNullOrEmpty(errorMessage))
+{
+    <div style="background-color: #f8d7da; color:#721c24; border: 1px solid #f5c6cb; padding: 10px; margin-bottom: 15px;">
+        <strong>Error:</strong>
+        @Html.Raw(errorMessage)    
+    </div>
 }
 
 <h1>Delete</h1>
@@ -11,6 +21,12 @@
     <h4>Movie</h4>
     <hr />
     <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.id)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.id)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Title)
         </dt>

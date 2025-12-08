@@ -1,10 +1,11 @@
 using Microsoft.Azure.Cosmos;
 using MvcMovie.Models;
 using Newtonsoft.Json;
+using MvcMovie.Static;
 
 namespace MvcMovie.Services
 {
-    public class CosmosDbService//<T> where T : class
+    public class CosmosDbService
     {
         private readonly CosmosClient _cosmosClient;
         private readonly Container _container;
@@ -29,7 +30,7 @@ namespace MvcMovie.Services
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return default;
+                throw;
             }
         }
 
@@ -66,11 +67,6 @@ namespace MvcMovie.Services
             }
 
         }
-
-
-
-
-        /*test purpose*/
         public async Task<List<T>> GetAllItemsAsync<T>()
         {
             try
@@ -93,9 +89,29 @@ namespace MvcMovie.Services
             }
             catch(CosmosException ex)
             {
-                return default;
+                throw;
             }
             
+        }
+
+        public async Task<string> DeleteItemAsync(string movieId)
+        {            
+            try
+            {
+                var item = new[] {movieId };
+                var response = await _container.Scripts.ExecuteStoredProcedureAsync<string>(
+                    "deleteMovieById",
+                    new PartitionKey(_partitionKey),
+                    item
+                );
+                string result =response.Resource;
+                return result;
+            }
+            catch(CosmosException ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw ex;
+            }
         }
     }    
 }

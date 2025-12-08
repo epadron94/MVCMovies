@@ -10,6 +10,7 @@ namespace MvcMovie.Static
         public static string MvcMovieContext = "MvcMovieContext";
         public static string CosmosDb = "CosmosDb";
         public static string PreferredRegions = "PreferredRegions";
+        public static string SpDeleteMovieById = "deleteMovieById";
     }
 
 }
