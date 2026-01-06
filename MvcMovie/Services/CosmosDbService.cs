@@ -9,7 +9,7 @@ namespace MvcMovie.Services
     {
         private readonly CosmosClient _cosmosClient;
         private readonly Container _container;
-        private readonly string _partitionKey = "";
+        //private readonly string _partitionKey = "";
 
         public CosmosDbService(CosmosClient client, IConfiguration config)
         {
@@ -18,14 +18,14 @@ namespace MvcMovie.Services
 
             _cosmosClient = client;
             _container = _cosmosClient.GetContainer(dbName, container);
-            _partitionKey = config["CosmosDb:PartitionKey"];
+            //_partitionKey = config["CosmosDb:PartitionKey"];
         }
 
         public async Task<T> GetItemAsync<T>(string id)
         {
             try
             {
-                var response = await _container.ReadItemAsync<T>(id, new PartitionKey(_partitionKey));
+                var response = await _container.ReadItemAsync<T>(id, new PartitionKey(MvcMovie.Static.Static.PartitionKey));
                 return response.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -38,8 +38,7 @@ namespace MvcMovie.Services
         {
             try
             {
-                item.partition1 = _partitionKey;
-                var response = await _container.CreateItemAsync(item, new PartitionKey(item.partition1));
+                var response = await _container.CreateItemAsync(item, new PartitionKey(MvcMovie.Static.Static.PartitionKey));
                 return response;
 
             }catch(CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
@@ -53,7 +52,6 @@ namespace MvcMovie.Services
         {
             try
             {
-                item.partition1 = _partitionKey;
                 var response = await _container.ReplaceItemAsync(item, item.id, new PartitionKey(item.partition1));
                 return response;
             }

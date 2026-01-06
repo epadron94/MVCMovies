@@ -1,19 +1,5 @@
 @model MvcMovie.Models.Movie
-
-@{
-    ViewData["Title"] = "Create";
-    string ? errorMessage = ViewBag.ErrorMessage as string;
-    bool hideForm = false;
-}
-@if(!string.IsNullOrEmpty(errorMessage))
-{
-    <div style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; margin-bottom: 15px;">
-        <strong>Error:</strong> 
-        @Html.Raw(errorMessage)
-    </div>
-    //hideForm = true;
-}
-<div hidden="@hideForm">
+@await Html.PartialAsync("ErrorBanner")
     <h1>Create</h1>
     <h4>Movie</h4>
     <hr />
@@ -29,22 +15,18 @@
                 <div class="form-group">
                     <label asp-for="Title" class="control-label"></label>
                     <input asp-for="Title" class="form-control" />
-                    <!--<span asp-validation-for="Title" class="text-danger"></span>-->
                 </div>
                 <div class="form-group">
                     <label asp-for="ReleaseDate" class="control-label"></label>
                     <input asp-for="ReleaseDate" class="form-control" />
-                    <!--<span asp-validation-for="ReleaseDate" class="text-danger"></span>-->
                 </div>
                 <div class="form-group">
                     <label asp-for="Genre" class="control-label"></label>
                     <input asp-for="Genre" class="form-control" />
-                    <!--<span asp-validation-for="Genre" class="text-danger"></span>-->
                 </div>
                 <div class="form-group">
                     <label asp-for="Price" class="control-label"></label>
-                    <input asp-for="Price" class="form-control" />
-                    <!--<span asp-validation-for="Price" class="text-danger"></span>--> 
+                    <input asp-for="Price" class="form-control" oninput="this.value = this.value.replace(/[^0-9.\-]/g, '')"/>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Create" class="btn btn-primary" />
@@ -52,7 +34,6 @@
             </form>
         </div>
     </div>
-</div>
 <div>
     <a asp-action="Index">Back to List</a>
 </div>

@@ -43,32 +43,20 @@ namespace MvcMovie.Controllers
                 if (string.IsNullOrEmpty(id))
                 {
                     throw new Exception("id is null or empty");
-                }
-                
-            /*var movie = await _context.Movie
-                    .FirstOrDefaultAsync(m => m.Id == id);
-                if (movie == null)
-                {
-                    return NotFound();
-                }
-                List<Movie> testvalue = await _cosmosDbService.GetAllItemsAsync<Movie>();//_cosmosDbService.GetItemAsync<string>("replace_with_new_document_id");*/
+                }                
                 Movie movie = _cosmosDbService.GetItemAsync<Movie>(id.ToString()).Result;
                 
-                //var movie = testvalue.Where(t => t.Id == id).FirstOrDefault();
                 if(movie is not null)
                     return View(movie);
                 else
-                    return NotFound(); 
-                //movie.Title += JsonSerializer.Serialize(testvalue.Where(m => m.Id == id)).ToString();
-                //return View(movie);    
+                    return NotFound();
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return NotFound();
-            }
-            //recibe como parametro el id de la pelicula,
-            
+                ViewBag.ErrorMessage = ex.Message;
+                return View("ErrorBanner");
+            }                        
         }
 
         // GET: Movies/Create
@@ -120,7 +108,7 @@ namespace MvcMovie.Controllers
             {
                 Console.WriteLine(ex.Message);
                 ViewBag.ErrorMessage = ex.Message;
-                return View();
+                return View("ErrorBanner");
                 //return NotFound();
             }
             
@@ -150,7 +138,7 @@ namespace MvcMovie.Controllers
             {
                 Console.WriteLine(ex.Message);
                 ViewBag.ErrorMessage = ex.Message;
-                return View();
+                return View(movie);
             }
         }
 

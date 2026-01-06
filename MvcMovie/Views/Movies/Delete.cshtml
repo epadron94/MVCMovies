@@ -1,21 +1,6 @@
 @model MvcMovie.Models.Movie
-
-@{
-    ViewData["Title"] = "Delete";
-    string ? errorMessage = ViewBag.ErrorMessage as string;
-
-}
-<!--TODO: move the error banner to a partial? view -->
-@if(!string.IsNullOrEmpty(errorMessage))
-{
-    <div style="background-color: #f8d7da; color:#721c24; border: 1px solid #f5c6cb; padding: 10px; margin-bottom: 15px;">
-        <strong>Error:</strong>
-        @Html.Raw(errorMessage)    
-    </div>
-}
-
+@await Html.PartialAsync("ErrorBanner")
 <h1>Delete</h1>
-
 <h3>Are you sure you want to delete this?</h3>
 <div>
     <h4>Movie</h4>
